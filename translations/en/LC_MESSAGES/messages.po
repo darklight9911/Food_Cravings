@@ -1,0 +1,76 @@
+# English translations for Food Cravings
+# Copyright (C) 2025
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Food Cravings 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-10-14 12:00+0000\n"
+"PO-Revision-Date: 2025-10-14 12:00+0000\n"
+"Last-Translator: Auto\n"
+"Language: en\n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Menu"
+msgstr "Menu"
+
+msgid "Orders"
+msgstr "Orders"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Menu Management"
+msgstr "Menu Management"
+
+msgid "Admin Dashboard"
+msgstr "Admin Dashboard"
+
+msgid "Food Cravings"
+msgstr "Food Cravings"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "English"
+msgstr "English"
+
+msgid "বাংলা"
+msgstr "বাংলা"
+
+msgid "My Orders"
+msgstr "My Orders"
+
+msgid "Total Orders"
+msgstr "Total Orders"
+
+msgid "Total Revenue"
+msgstr "Total Revenue"
+
+msgid "Menu Items"
+msgstr "Menu Items"
+
+msgid "Recent Orders"
+msgstr "Recent Orders"
+
+msgid "Welcome to"
+msgstr "Welcome to"

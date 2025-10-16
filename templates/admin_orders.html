@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Orders{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-dark flex items-center">
+            <i class="fas fa-shopping-bag text-primary mr-3"></i>
+            Order Management
+        </h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-chart-line mr-1"></i>
+            Real-time Updates
+        </div>
+    </div>
+    
+    {% if orders %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Order ID</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Customer</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Item</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Quantity</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Total Price</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <span class="font-semibold text-dark">#{{ order.id }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-primary text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-dark">{{ order.user.username }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    {% if order.item.image_path %}
+                                        <img src="/{{ order.item.image_path or 'static/uploads/default-food.png' }}" 
+                                             alt="{{ order.item.name }}"
+                                             class="w-12 h-12 object-cover rounded-lg mr-3 shadow-sm">
+                                    {% else %}
+                                        <div class="w-12 h-12 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
+                                            <i class="fas fa-utensils text-gray-400"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="font-medium text-dark">{{ order.item.name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                                    {{ order.quantity }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-semibold text-dark">${{ "%.2f"|format(order.item.price * order.quantity) }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}">
+                                    <select name="status" 
+                                            onchange="this.form.submit()"
+                                            class="border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent
+                                                   {% if order.status == 'pending' %}
+                                                       bg-yellow-50 text-yellow-800
+                                                   {% elif order.status == 'completed' %}
+                                                       bg-green-50 text-green-800
+                                                   {% else %}
+                                                       bg-red-50 text-red-800
+                                                   {% endif %}">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>
+                                            Pending
+                                        </option>
+                                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>
+                                            Completed
+                                        </option>
+                                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>
+                                            Cancelled
+                                        </option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                {{ order.timestamp.strftime('%m/%d/%Y %I:%M %p') }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if order.status == 'pending' %}
+                                    <div class="flex space-x-2">
+                                        <form method="POST" 
+                                              action="{{ url_for('update_order_status', order_id=order.id) }}"
+                                              class="inline">
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit" 
+                                                    class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                                <i class="fas fa-check mr-1"></i>Complete
+                                            </button>
+                                        </form>
+                                        <form method="POST" 
+                                              action="{{ url_for('update_order_status', order_id=order.id) }}"
+                                              class="inline"
+                                              onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                                <i class="fas fa-times mr-1"></i>Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-shopping-bag text-gray-400 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-dark mb-2">No Orders Found</h3>
+            <p class="text-gray-600">No orders have been placed yet. Orders will appear here once customers start ordering.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

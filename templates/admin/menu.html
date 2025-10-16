@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Menu Management{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-semibold text-dark">Menu Management</h1>
+        <button onclick="openAddItemModal()"
+            class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center">
+            <i class="fas fa-plus mr-2"></i>
+            Add New Item
+        </button>
+    </div>
+
+    <!-- Menu Categories -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex space-x-4 mb-6">
+            <button class="category-btn active" data-category="all">
+                All Items
+            </button>
+            <button class="category-btn" data-category="breakfast">
+                Breakfast
+            </button>
+            <button class="category-btn" data-category="lunch">
+                Lunch
+            </button>
+            <button class="category-btn" data-category="dinner">
+                Dinner
+            </button>
+            <button class="category-btn" data-category="snacks">
+                Snacks
+            </button>
+        </div>
+
+        <!-- Menu Items Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in menu_items %}
+            <div class="menu-item" data-category="{{ item.shift }}">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="relative h-48">
+                        <img src="/{{ item.image_path or 'static/uploads/default-food.png' }}" 
+                             alt="{{ item.name }}"
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 space-x-2">
+                            <button onclick="toggleAvailability('{{ item.id }}')"
+                                class="bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors
+                                       {% if item.available %}text-green-500{% else %}text-red-500{% endif %}">
+                                <i class="fas {% if item.available %}fa-check{% else %}fa-times{% endif %}"></i>
+                            </button>
+                            <button onclick="openEditItemModal('{{ item.id }}')"
+                                class="bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors text-blue-500">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteItem('{{ item.id }}')"
+                                class="bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors text-red-500">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-semibold text-dark">{{ item.name }}</h3>
+                            <p class="text-primary font-semibold">${{ "%.2f"|format(item.price) }}</p>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">{{ item.description }}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                {{ item.shift|title }}
+                            </span>
+                            <span class="text-sm {% if item.available %}text-green-500{% else %}text-red-500{% endif %}">
+                                {{ "Available" if item.available else "Not Available" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Item Modal -->
+<div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg w-full max-w-md p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-dark" id="modalTitle">Add New Item</h2>
+            <button onclick="closeItemModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="itemForm" class="space-y-4" enctype="multipart/form-data">
+            <input type="hidden" name="item_id" id="itemId">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Item Name</label>
+                <input type="text" name="name" id="itemName" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea name="description" id="itemDescription" rows="3"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Price</label>
+                <input type="number" name="price" id="itemPrice" step="0.01" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Category</label>
+                <select name="shift" id="itemShift" required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snacks">Snacks</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Image</label>
+                <input type="file" name="image" id="itemImage" accept="image/*"
+                    class="mt-1 block w-full text-sm text-gray-500
+                           file:mr-4 file:py-2 file:px-4
+                           file:rounded-full file:border-0
+                           file:text-sm file:font-semibold
+                           file:bg-primary file:text-white
+                           hover:file:bg-opacity-90">
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeItemModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90">
+                    Save Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .category-btn {
+        @apply px-4 py-2 rounded-full text-gray-600 hover:text-primary transition-colors;
+    }
+    .category-btn.active {
+        @apply bg-primary text-white hover:text-white;
+    }
+</style>
+
+<script>
+    // Category filtering
+    const categoryBtns = document.querySelectorAll('.category-btn');
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    categoryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active button
+            categoryBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Filter items
+            const category = btn.dataset.category;
+            menuItems.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Modal handling
+    const modal = document.getElementById('itemModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const itemForm = document.getElementById('itemForm');
+
+    function openAddItemModal() {
+        modalTitle.textContent = 'Add New Item';
+        itemForm.reset();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function openEditItemModal(itemId) {
+        modalTitle.textContent = 'Edit Item';
+        // Fetch item details and populate form
+        fetch(`/admin/menu/${itemId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('itemId').value = data.id;
+                document.getElementById('itemName').value = data.name;
+                document.getElementById('itemDescription').value = data.description;
+                document.getElementById('itemPrice').value = data.price;
+                document.getElementById('itemShift').value = data.shift;
+            });
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeItemModal() {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+
+    // Form submission
+    itemForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(itemForm);
+        const itemId = formData.get('item_id');
+        const url = itemId ? `/admin/menu/${itemId}` : '/admin/menu/add';
+
+        fetch(url, {
+            method: itemId ? 'PUT' : 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            }
+        });
+    });
+
+    // Item actions
+    function toggleAvailability(itemId) {
+        fetch(`/admin/menu/${itemId}/toggle`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            }
+        });
+    }
+
+    function deleteItem(itemId) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            fetch(`/admin/menu/${itemId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

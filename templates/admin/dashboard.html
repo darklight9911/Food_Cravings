@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _('Admin Dashboard') }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Dashboard Header -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-semibold text-dark mb-4">{{ _('Admin Dashboard') }}</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Orders Summary Card -->
+            <div class="bg-primary bg-opacity-10 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-primary text-sm font-medium">{{ _('Total Orders') }}</p>
+                        <h2 class="text-3xl font-bold text-dark mt-2">{{ total_orders }}</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-shopping-bag text-primary text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm mt-4">
+                    <span class="text-green-500"><i class="fas fa-arrow-up"></i> 12%</span>
+                    from last week
+                </p>
+            </div>
+
+            <!-- Revenue Card -->
+            <div class="bg-secondary bg-opacity-10 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-secondary text-sm font-medium">{{ _('Total Revenue') }}</p>
+                        <h2 class="text-3xl font-bold text-dark mt-2">${{ total_revenue }}</h2>
+                    </div>
+                    <div class="bg-secondary bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-dollar-sign text-secondary text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm mt-4">
+                    <span class="text-green-500"><i class="fas fa-arrow-up"></i> 8%</span>
+                    from last week
+                </p>
+            </div>
+
+            <!-- Menu Items Card -->
+            <div class="bg-purple-500 bg-opacity-10 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-500 text-sm font-medium">{{ _('Menu Items') }}</p>
+                        <h2 class="text-3xl font-bold text-dark mt-2">{{ total_items }}</h2>
+                    </div>
+                    <div class="bg-purple-500 bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-utensils text-purple-500 text-xl"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm mt-4">
+                    <span class="text-blue-500"><i class="fas fa-plus"></i> 3</span>
+                    new items added
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-dark">Recent Orders</h2>
+            <a href="/admin/orders" class="text-primary hover:text-primary-dark transition-colors">View all</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left bg-gray-50">
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">#{{ order.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ order.user.username }}</td>
+                        <td class="px-6 py-4">{{ order.item.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${{ "%.2f"|format(order.item.price * order.quantity) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ order.status|title }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <div class="flex space-x-2">
+                                <button onclick="updateOrderStatus('{{ order.id }}', 'completed')"
+                                    class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="updateOrderStatus('{{ order.id }}', 'cancelled')"
+                                    class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+
+        <!-- Statistics -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-dark mb-4">Popular Items</h3>
+            <div class="space-y-4">
+                {% for item in popular_items %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <img src="/{{ item.image_path or 'static/uploads/default-food.png' }}" 
+                             alt="{{ item.name }}" 
+                             class="w-12 h-12 rounded-full object-cover">
+                        <div>
+                            <p class="font-medium text-dark">{{ item.name }}</p>
+                            <p class="text-sm text-gray-500">{{ item.orders|length }} orders</p>
+                        </div>
+                    </div>
+                    <p class="font-medium text-dark">${{ "%.2f"|format(item.price) }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateOrderStatus(orderId, status) {
+        fetch(`/admin/orders/${orderId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Notices{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-dark flex items-center">
+            <i class="fas fa-bullhorn text-primary mr-3"></i>
+            Notice Board
+        </h2>
+        <div class="text-sm text-gray-500">
+            <i class="fas fa-clock mr-1"></i>
+            Latest Updates
+        </div>
+    </div>
+    
+    <div class="space-y-4">
+        {% if notices %}
+            {% for notice in notices %}
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-info-circle text-primary text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-semibold text-dark mb-3">{{ notice.title }}</h3>
+                            <p class="text-gray-600 mb-4 leading-relaxed">{{ notice.content }}</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                <span>{{ notice.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-xl shadow-md p-12 text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-bullhorn text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-dark mb-2">No Notices Available</h3>
+                <p class="text-gray-600">Check back later for the latest updates and announcements.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

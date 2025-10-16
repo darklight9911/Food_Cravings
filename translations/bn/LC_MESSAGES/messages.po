@@ -1,0 +1,76 @@
+# Bengali translations for Food Cravings
+# Copyright (C) 2025
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Food Cravings 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-10-14 12:00+0000\n"
+"PO-Revision-Date: 2025-10-14 12:00+0000\n"
+"Last-Translator: Auto\n"
+"Language: bn\n"
+"Language-Team: Bengali\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "ড্যাশবোর্ড"
+
+msgid "Menu"
+msgstr "মেনু"
+
+msgid "Orders"
+msgstr "অর্ডার"
+
+msgid "Login"
+msgstr "লগইন"
+
+msgid "Logout"
+msgstr "লগআউট"
+
+msgid "Register"
+msgstr "নিবন্ধন"
+
+msgid "Profile"
+msgstr "প্রোফাইল"
+
+msgid "Account"
+msgstr "অ্যাকাউন্ট"
+
+msgid "Menu Management"
+msgstr "মেনু ব্যবস্থাপনা"
+
+msgid "Admin Dashboard"
+msgstr "অ্যাডমিন ড্যাশবোর্ড"
+
+msgid "Food Cravings"
+msgstr "খাবারের আকাঙ্ক্ষা"
+
+msgid "Language"
+msgstr "ভাষা"
+
+msgid "English"
+msgstr "ইংরেজি"
+
+msgid "বাংলা"
+msgstr "বাংলা"
+
+msgid "My Orders"
+msgstr "আমার অর্ডার"
+
+msgid "Total Orders"
+msgstr "মোট অর্ডার"
+
+msgid "Total Revenue"
+msgstr "মোট আয়"
+
+msgid "Menu Items"
+msgstr "মেনু আইটেম"
+
+msgid "Recent Orders"
+msgstr "সাম্প্রতিক অর্ডার"
+
+msgid "Welcome to"
+msgstr "স্বাগতম"

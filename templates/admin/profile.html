@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+    <!-- Admin Profile Header -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-red-500/20 to-red-600/20 px-6 py-8">
+            <div class="flex items-center space-x-6">
+                <div class="w-20 h-20 bg-red-500/30 rounded-full flex items-center justify-center">
+                    <i class="fas fa-crown text-red-600 text-3xl"></i>
+                </div>
+                <div class="text-dark">
+                    <h1 class="text-3xl font-bold">{{ user.username }}</h1>
+                    <p class="text-lg text-gray-600">Administrator</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Stats -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-primary">{{ total_orders }}</div>
+                    <div class="text-gray-600">Total Orders</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">${{ "%.2f"|format(total_revenue) }}</div>
+                    <div class="text-gray-600">Total Revenue</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">{{ total_items }}</div>
+                    <div class="text-gray-600">Menu Items</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">{{ total_users }}</div>
+                    <div class="text-gray-600">Total Users</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-yellow-600">{{ total_feedback }}</div>
+                    <div class="text-gray-600">Feedback</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <a href="/admin/dashboard" class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-center">
+            <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-chart-line text-primary text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-dark mb-2">Dashboard</h3>
+            <p class="text-gray-600 text-sm">View analytics and reports</p>
+        </a>
+        
+        <a href="/admin/menu" class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-center">
+            <div class="w-12 h-12 bg-secondary bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-clipboard-list text-secondary text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-dark mb-2">Menu Management</h3>
+            <p class="text-gray-600 text-sm">Manage menu items</p>
+        </a>
+        
+        <a href="/admin/orders" class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-center">
+            <div class="w-12 h-12 bg-yellow-500 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-shopping-bag text-yellow-500 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-dark mb-2">Order Management</h3>
+            <p class="text-gray-600 text-sm">Process and track orders</p>
+        </a>
+        
+        <a href="/admin/notices" class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow text-center">
+            <div class="w-12 h-12 bg-purple-500 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-bullhorn text-purple-500 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-dark mb-2">Notices</h3>
+            <p class="text-gray-600 text-sm">Manage announcements</p>
+        </a>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Recent Orders -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-dark">
+                    <i class="fas fa-shopping-cart mr-2"></i>Recent Orders
+                </h2>
+                <a href="/admin/orders" class="text-primary hover:text-primary-dark transition-colors text-sm">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            
+            {% if recent_orders %}
+                <div class="space-y-4">
+                    {% for order in recent_orders %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-utensils text-primary text-sm"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-dark text-sm">{{ order.item.name }}</h3>
+                                    <p class="text-xs text-gray-600">
+                                        by {{ order.user.username }} • Qty: {{ order.quantity }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ order.timestamp.strftime('%m/%d %I:%M %p') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-dark">${{ "%.2f"|format(order.item.price * order.quantity) }}</div>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium
+                                    {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                    {% elif order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ order.status.title() }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-shopping-cart text-3xl mb-4"></i>
+                    <p class="text-sm">No recent orders</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Feedback -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-dark">
+                    <i class="fas fa-star mr-2"></i>Recent Feedback
+                </h2>
+                <a href="/admin/dashboard" class="text-primary hover:text-primary-dark transition-colors text-sm">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            
+            {% if recent_feedback %}
+                <div class="space-y-4">
+                    {% for feedback in recent_feedback %}
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="font-semibold text-dark text-sm">{{ feedback.menu_item.name }}</h3>
+                                    <p class="text-xs text-gray-600">by {{ feedback.user.username }}</p>
+                                </div>
+                                <div class="flex items-center">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star {% if i < feedback.rating %}text-yellow-400{% else %}text-gray-300{% endif %} text-xs"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if feedback.comment %}
+                                <p class="text-gray-600 text-sm mb-2">{{ feedback.comment }}</p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500">
+                                {{ feedback.timestamp.strftime('%m/%d %I:%M %p') }}
+                            </p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-star text-3xl mb-4"></i>
+                    <p class="text-sm">No recent feedback</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Popular Items -->
+    {% if popular_items %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-semibold text-dark mb-6">
+                <i class="fas fa-fire mr-2"></i>Popular Items
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for item in popular_items %}
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-utensils text-primary"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-dark text-sm">{{ item.name }}</h3>
+                                <p class="text-xs text-gray-600">${{ "%.2f"|format(item.price) }}</p>
+                                <p class="text-xs text-gray-500 capitalize">{{ item.shift }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Admin Profile Settings -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-2xl font-semibold text-dark mb-6">
+            <i class="fas fa-cog mr-2"></i>Profile Settings
+        </h2>
+        
+        <form method="POST" action="/profile/update" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+                    <div class="px-4 py-2 bg-red-100 rounded-lg">
+                        <span class="text-red-600 font-semibold">
+                            <i class="fas fa-crown mr-1"></i>Administrator
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-semibold text-dark mb-4">Change Password</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <input type="password" id="new_password" name="new_password" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+                    <i class="fas fa-save mr-2"></i>Update Profile
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Add some interactive features
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling for better UX
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
