@@ -74,3 +74,45 @@ msgstr "সাম্প্রতিক অর্ডার"
 
 msgid "Welcome to"
 msgstr "স্বাগতম"
+
+msgid "Cart"
+msgstr "কার্ট"
+
+msgid "Add to Cart"
+msgstr "কার্টে যোগ করুন"
+
+msgid "My Cart"
+msgstr "আমার কার্ট"
+
+msgid "Clear Cart"
+msgstr "কার্ট খালি করুন"
+
+msgid "Your cart is empty"
+msgstr "আপনার কার্ট খালি"
+
+msgid "Add items from the menu to get started!"
+msgstr "শুরু করতে মেনু থেকে আইটেম যোগ করুন!"
+
+msgid "Browse Menu"
+msgstr "মেনু দেখুন"
+
+msgid "items"
+msgstr "আইটেম"
+
+msgid "each"
+msgstr "প্রতিটি"
+
+msgid "Total Amount"
+msgstr "মোট পরিমাণ"
+
+msgid "Continue Shopping"
+msgstr "কেনাকাটা চালিয়ে যান"
+
+msgid "Place Order"
+msgstr "অর্ডার করুন"
+
+msgid "Are you sure you want to remove this item?"
+msgstr "আপনি কি নিশ্চিত যে এই আইটেমটি সরাতে চান?"
+
+msgid "Are you sure you want to clear your entire cart?"
+msgstr "আপনি কি নিশ্চিত যে আপনার পুরো কার্ট খালি করতে চান?"

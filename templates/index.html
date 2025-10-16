@@ -1,70 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Home') }}{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="space-y-12">
-    <!-- Enhanced Hero Section -->
-    <div class="relative bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50 rounded-3xl overflow-hidden border-2 border-gradient-to-r from-primary to-secondary shadow-2xl">
-        <!-- Animated background patterns -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-primary to-secondary rounded-full blur-2xl animate-pulse"></div>
-            <div class="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-br from-secondary to-primary rounded-full blur-xl animate-pulse" style="animation-delay: 1s;"></div>
-            <div class="absolute top-1/2 left-1/3 w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full blur-xl animate-pulse" style="animation-delay: 2s;"></div>
-        </div>
+<div class="space-y-6">
+    <!-- Hero Section -->
+    <div class="relative bg-gradient-to-br from-primary/20 via-white to-secondary/20 rounded-2xl overflow-hidden border border-primary/30 shadow-lg">
+        <!-- Gradient Overlay for extra brightness -->
+        <div class="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-white/30"></div>
         
-        <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-white/60 via-transparent to-white/40"></div>
-        
-        <div class="relative px-8 py-16 md:py-24 text-center">
-            <div class="w-28 h-28 bg-gradient-to-br from-primary via-secondary to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl hero-float glow-effect steam-effect">
-                <i class="fas fa-utensils text-white text-4xl drop-shadow-lg"></i>
+        <div class="relative px-6 py-12 md:py-16 text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg border border-white/50">
+                <i class="fas fa-utensils text-primary text-3xl drop-shadow-sm"></i>
             </div>
-            <h1 class="text-4xl md:text-6xl font-bold gradient-text mb-6 slide-in-animation">
-                {{ _('Welcome to') }} <br>
-                <span class="text-5xl md:text-7xl">{{ _('Food Cravings') }}</span>
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-10 slide-in-right-animation font-medium">
+            <h1 class="text-3xl md:text-4xl font-bold text-dark mb-4 drop-shadow-sm">Welcome to Food Cravings</h1>
+            <p class="text-lg text-gray-700 max-w-2xl mx-auto mb-8 drop-shadow-sm">
                 Your favorite campus dining destination for delicious meals prepared fresh daily
             </p>
-            <div class="flex flex-col sm:flex-row gap-6 justify-center bounce-in-animation">
-                <a href="/menu" class="btn-primary text-white px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center transform hover:scale-105 transition-all duration-300 shadow-xl">
-                    <i class="fas fa-utensils mr-3 text-xl"></i>
-                    {{ _('View Menu') }}
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/menu" class="bg-primary text-white px-8 py-3 rounded-full font-medium hover:bg-opacity-90 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <i class="fas fa-utensils mr-2"></i>
+                    View Menu
                 </a>
-                <a href="/notices" class="btn-secondary text-primary px-10 py-4 rounded-full font-bold text-lg flex items-center justify-center transform hover:scale-105 transition-all duration-300 shadow-lg">
-                    <i class="fas fa-bullhorn mr-3 text-xl"></i>
-                    {{ _('Latest Updates') }}
+                <a href="/notices" class="bg-white/80 backdrop-blur-sm text-primary border-2 border-primary px-8 py-3 rounded-full font-medium hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fas fa-bullhorn mr-2"></i>
+                    Latest Updates
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Enhanced Notice Board Section -->
+    <!-- Notice Board Section -->
     {% if notices %}
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden border border-primary/20 reveal">
-            <div class="bg-gradient-to-r from-primary to-secondary px-8 py-6">
-                <div class="flex items-center text-white">
-                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4 hero-float">
-                        <i class="fas fa-bullhorn text-2xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold">{{ _('Latest Updates') }}</h2>
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-primary/10 px-6 py-4 border-b border-primary/20">
+                <div class="flex items-center">
+                    <i class="fas fa-bullhorn text-primary text-xl mr-3"></i>
+                    <h2 class="text-xl font-semibold text-primary">Latest Updates</h2>
                 </div>
             </div>
             <div class="divide-y divide-gray-100">
                 {% for notice in notices %}
-                    <div class="p-6 hover:bg-gradient-to-r hover:from-primary/5 hover:to-secondary/5 transition-all duration-300 interactive-card">
-                        <div class="flex items-start space-x-6">
+                    <div class="p-5 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start space-x-4">
                             <div class="flex-shrink-0">
-                                <div class="w-14 h-14 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center glow-effect">
-                                    <i class="fas fa-info-circle text-primary text-2xl"></i>
+                                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-info-circle text-primary text-lg"></i>
                                 </div>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-xl font-bold text-gray-800 mb-3 gradient-text">{{ notice.title }}</h3>
-                                <p class="text-gray-600 mb-4 leading-relaxed">{{ notice.content }}</p>
-                                <p class="text-sm text-gray-500 flex items-center font-medium">
-                                    <i class="fas fa-clock mr-2 text-primary"></i>
+                                <h3 class="text-lg font-semibold text-dark mb-2">{{ notice.title }}</h3>
+                                <p class="text-gray-600 mb-3">{{ notice.content }}</p>
+                                <p class="text-sm text-gray-500 flex items-center">
+                                    <i class="fas fa-clock mr-2"></i>
                                     {{ notice.timestamp.strftime('%B %d, %Y at %I:%M %p') }}
                                 </p>
                             </div>
@@ -75,74 +63,65 @@
         </div>
     {% endif %}
 
-    <!-- Enhanced Featured Items Section -->
-    <div class="space-y-8 reveal">
+    <!-- Featured Items Section -->
+    <div class="space-y-4">
         <div class="flex justify-between items-center">
-            <h2 class="text-3xl md:text-4xl font-bold gradient-text flex items-center">
-                <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mr-4 glow-effect hero-float">
-                    <i class="fas fa-star text-white text-xl"></i>
-                </div>
-                {{ _('Featured Items') }}
+            <h2 class="text-2xl font-semibold text-dark flex items-center">
+                <i class="fas fa-star text-primary mr-3"></i>
+                Featured Items
             </h2>
-            <a href="/menu" class="btn-primary text-white px-6 py-3 rounded-full font-bold flex items-center group">
-                {{ _('View All') }} 
-                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            <a href="/menu" class="text-primary hover:text-primary-dark transition-colors flex items-center font-medium">
+                View All <i class="fas fa-arrow-right ml-2"></i>
             </a>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {% for item in featured_items %}
-                <div class="food-card interactive-card bg-white/95 backdrop-blur-md rounded-3xl shadow-xl overflow-hidden border border-gray-200/50 reveal">
-                    <div class="relative h-56 overflow-hidden">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="relative h-48">
                         <img src="/{{ item.image_path or 'static/uploads/default-food.png' }}" 
                              alt="{{ item.name }}"
-                             class="card-image w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                             class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
-                            <span class="bg-gradient-to-r from-green-400 to-green-500 px-4 py-2 rounded-full text-white font-bold shadow-lg glow-effect">
+                            <span class="bg-white px-3 py-1 rounded-full text-primary font-semibold shadow-md">
                                 ${{ "%.2f"|format(item.price) }}
-                            </span>
-                        </div>
-                        <!-- Steam effect for hot items -->
-                        <div class="absolute top-4 left-4 steam-effect">
-                            <span class="bg-white/90 px-3 py-1 rounded-full text-xs font-semibold text-gray-700 shadow-md">
-                                <i class="fas fa-fire mr-1 text-orange-500"></i>
-                                Hot & Fresh
                             </span>
                         </div>
                     </div>
                     <div class="p-6">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-xl font-bold text-gray-800 gradient-text">{{ item.name }}</h3>
-                            <span class="text-sm text-gray-500 capitalize bg-gray-100 px-3 py-1 rounded-full font-medium">
-                                <i class="fas fa-clock mr-1 text-primary"></i>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-semibold text-dark">{{ item.name }}</h3>
+                            <span class="text-sm text-gray-500 capitalize">
+                                <i class="fas fa-clock mr-1"></i>
                                 {{ item.shift }}
                             </span>
                         </div>
-                        <p class="text-gray-600 mb-6 leading-relaxed">{{ item.description }}</p>
+                        <p class="text-gray-600 mb-4">{{ item.description }}</p>
                         
                         {% if session.get('user_id') %}
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="flex text-yellow-400">
-                                        {% for i in range(5) %}
-                                            <i class="fas fa-star text-sm"></i>
-                                        {% endfor %}
-                                    </div>
-                                    <span class="text-sm text-gray-500 font-medium">(4.8)</span>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="decreaseQuantity('{{ item.id }}')"
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span id="quantity-{{ item.id }}" class="w-8 text-center">1</span>
+                                    <button onclick="increaseQuantity('{{ item.id }}')"
+                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
-                                <button class="btn-primary text-white px-6 py-2 rounded-full font-semibold text-sm transform hover:scale-105 transition-all duration-300">
-                                    <i class="fas fa-plus mr-2"></i>
-                                    Add to Cart
+                                <button onclick="addToOrder('{{ item.id }}')"
+                                    class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center">
+                                    <i class="fas fa-shopping-cart mr-2"></i>
+                                    Order Now
                                 </button>
                             </div>
                         {% else %}
-                            <div class="text-center">
-                                <a href="/login" class="btn-secondary text-primary px-8 py-3 rounded-full font-semibold transform hover:scale-105 transition-all duration-300 inline-flex items-center">
-                                    <i class="fas fa-sign-in-alt mr-2"></i>
-                                    {{ _('Login to Order') }}
-                                </a>
-                            </div>
+                            <a href="/login" class="block text-center bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors">
+                                <i class="fas fa-sign-in-alt mr-2"></i>
+                                Login to Order
+                            </a>
                         {% endif %}
                     </div>
                 </div>
@@ -151,30 +130,73 @@
     </div>
 
     <!-- Features Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal">
-        <div class="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl transition-all duration-300 interactive-card border border-gray-200/50">
-            <div class="w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect">
-                <i class="fas fa-utensils text-primary text-2xl"></i>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+            <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-utensils text-primary text-xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-3 gradient-text">Fresh & Delicious</h3>
-            <p class="text-gray-600 leading-relaxed">We prepare all meals fresh daily using quality ingredients</p>
+            <h3 class="text-lg font-semibold text-dark mb-2">Fresh & Delicious</h3>
+            <p class="text-gray-600 text-sm">We prepare all meals fresh daily using quality ingredients</p>
         </div>
         
-        <div class="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl transition-all duration-300 interactive-card border border-gray-200/50">
-            <div class="w-16 h-16 bg-gradient-to-br from-secondary/20 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect">
-                <i class="fas fa-truck text-secondary text-2xl"></i>
+        <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+            <div class="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-truck text-secondary text-xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-3 gradient-text">Quick Service</h3>
-            <p class="text-gray-600 leading-relaxed">Fast preparation and delivery within the campus</p>
+            <h3 class="text-lg font-semibold text-dark mb-2">Quick Service</h3>
+            <p class="text-gray-600 text-sm">Fast preparation and delivery within the campus</p>
         </div>
         
-        <div class="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-xl text-center hover:shadow-2xl transition-all duration-300 interactive-card border border-gray-200/50">
-            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 glow-effect">
-                <i class="fas fa-star text-yellow-500 text-2xl"></i>
+        <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
+            <div class="w-14 h-14 bg-yellow-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-star text-yellow-500 text-xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-3 gradient-text">Quality Assured</h3>
-            <p class="text-gray-600 leading-relaxed">Regular quality checks and hygiene maintenance</p>
+            <h3 class="text-lg font-semibold text-dark mb-2">Quality Assured</h3>
+            <p class="text-gray-600 text-sm">Regular quality checks and hygiene maintenance</p>
         </div>
     </div>
 </div>
+
+<script>
+function decreaseQuantity(itemId) {
+    const quantityElement = document.getElementById(`quantity-${itemId}`);
+    let quantity = parseInt(quantityElement.textContent);
+    if (quantity > 1) {
+        quantityElement.textContent = quantity - 1;
+    }
+}
+
+function increaseQuantity(itemId) {
+    const quantityElement = document.getElementById(`quantity-${itemId}`);
+    let quantity = parseInt(quantityElement.textContent);
+    quantityElement.textContent = quantity + 1;
+}
+
+function addToOrder(itemId) {
+    const quantity = parseInt(document.getElementById(`quantity-${itemId}`).textContent);
+    fetch('/orders/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+            quantity: quantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in';
+            notification.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Added to order successfully!';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    });
+}
+</script>
 {% endblock %}

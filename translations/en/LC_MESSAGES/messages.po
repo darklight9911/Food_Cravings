@@ -74,3 +74,45 @@ msgstr "Recent Orders"
 
 msgid "Welcome to"
 msgstr "Welcome to"
+
+msgid "Cart"
+msgstr "Cart"
+
+msgid "Add to Cart"
+msgstr "Add to Cart"
+
+msgid "My Cart"
+msgstr "My Cart"
+
+msgid "Clear Cart"
+msgstr "Clear Cart"
+
+msgid "Your cart is empty"
+msgstr "Your cart is empty"
+
+msgid "Add items from the menu to get started!"
+msgstr "Add items from the menu to get started!"
+
+msgid "Browse Menu"
+msgstr "Browse Menu"
+
+msgid "items"
+msgstr "items"
+
+msgid "each"
+msgstr "each"
+
+msgid "Total Amount"
+msgstr "Total Amount"
+
+msgid "Continue Shopping"
+msgstr "Continue Shopping"
+
+msgid "Place Order"
+msgstr "Place Order"
+
+msgid "Are you sure you want to remove this item?"
+msgstr "Are you sure you want to remove this item?"
+
+msgid "Are you sure you want to clear your entire cart?"
+msgstr "Are you sure you want to clear your entire cart?"

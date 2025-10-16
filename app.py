@@ -47,11 +47,23 @@ class MenuItem(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
+    meal_shift = db.Column(db.String(20), nullable=False)  # breakfast, lunch, supper, dinner
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='pending')  # pending, completed, cancelled
-    item = db.relationship('MenuItem', backref='orders', lazy=True)
+    total_amount = db.Column(db.Float, nullable=False, default=0.0)
+    
+    # Relationships
+    order_items = db.relationship('OrderItem', backref='order', lazy=True, cascade='all, delete-orphan')
+
+class OrderItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Float, nullable=False)  # Price at time of order
+    
+    # Relationships  
+    item = db.relationship('MenuItem', backref='order_items', lazy=True)
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,6 +78,20 @@ class Notice(db.Model):
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('menu_item.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='cart_items', lazy=True)
+    item = db.relationship('MenuItem', backref='cart_items', lazy=True)
+    
+    # Unique constraint to prevent duplicate items in cart
+    __table_args__ = (db.UniqueConstraint('user_id', 'item_id', name='_user_item_cart'),)
 
 with app.app_context():
     db.create_all()
@@ -91,6 +117,14 @@ def inject_conf_vars():
         'CURRENT_LANGUAGE': session.get('language', get_locale()),
         '_': gettext
     }
+
+# Cart context processor
+@app.context_processor
+def inject_cart_count():
+    if 'user_id' in session:
+        cart_count = Cart.query.filter_by(user_id=session['user_id']).count()
+        return {'cart_count': cart_count}
+    return {'cart_count': 0}
 
 # Decorators
 def login_required(f):
@@ -277,22 +311,35 @@ def add_to_order():
 @login_required
 def add_feedback(item_id):
     try:
-        data = request.get_json()
-        rating = data.get('rating')
-        comment = data.get('comment')
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            rating = data.get('rating')
+            comment = data.get('comment')
+        else:
+            rating = request.form.get('rating')
+            comment = request.form.get('comment')
         
         feedback = Feedback(
             user_id=session['user_id'],
             item_id=item_id,
-            rating=rating,
+            rating=int(rating),
             comment=comment
         )
         db.session.add(feedback)
         db.session.commit()
         
-        return jsonify({'success': True})
+        if request.is_json:
+            return jsonify({'success': True})
+        else:
+            flash('Thank you for your feedback!')
+            return redirect(url_for('view_orders'))
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        if request.is_json:
+            return jsonify({'success': False, 'error': str(e)})
+        else:
+            flash('Error submitting feedback. Please try again.')
+            return redirect(url_for('view_orders'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -408,7 +455,7 @@ def place_order():
 @app.route('/orders')
 @login_required
 def view_orders():
-    orders = Order.query.filter_by(user_id=session['user_id']).order_by(Order.timestamp.desc()).all()
+    orders = Order.query.options(db.joinedload('order_items')).filter_by(user_id=session['user_id']).order_by(Order.timestamp.desc()).all()
     return render_template('orders.html', orders=orders)
 
 @app.route('/orders/<int:order_id>/cancel', methods=['POST'])
@@ -429,10 +476,186 @@ def cancel_order(order_id):
     flash('Order cancelled successfully.')
     return redirect(url_for('view_orders'))
 
+# Cart Management Routes
+@app.route('/cart')
+@login_required
+def view_cart():
+    cart_items = Cart.query.options(db.joinedload('item')).filter_by(user_id=session['user_id']).all()
+    
+    # Group items by meal shift
+    cart_by_shift = {}
+    total_amount = 0
+    
+    for cart_item in cart_items:
+        shift = cart_item.item.shift
+        if shift not in cart_by_shift:
+            cart_by_shift[shift] = []
+        cart_by_shift[shift].append(cart_item)
+        total_amount += cart_item.item.price * cart_item.quantity
+    
+    return render_template('cart.html', cart_by_shift=cart_by_shift, total_amount=total_amount)
+
+@app.route('/cart/add/<int:item_id>', methods=['POST'])
+@login_required
+def add_to_cart(item_id):
+    quantity = int(request.form.get('quantity', 1))
+    
+    # Check if item exists and is available
+    menu_item = MenuItem.query.get_or_404(item_id)
+    if not menu_item.available:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+        if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+            return jsonify({'success': False, 'message': 'Item is not available'})
+        flash('Sorry, this item is currently unavailable.')
+        return redirect(url_for('menu'))
+    
+    # Check if item already exists in cart
+    existing_cart_item = Cart.query.filter_by(user_id=session['user_id'], item_id=item_id).first()
+    
+    if existing_cart_item:
+        # Update quantity
+        existing_cart_item.quantity += quantity
+    else:
+        # Add new item to cart
+        cart_item = Cart(
+            user_id=session['user_id'],
+            item_id=item_id,
+            quantity=quantity
+        )
+        db.session.add(cart_item)
+    
+    db.session.commit()
+    
+    # Always return JSON for API endpoints, or if it's an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+    if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+        cart_count = Cart.query.filter_by(user_id=session['user_id']).count()
+        return jsonify({'success': True, 'cart_count': cart_count, 'message': f'{menu_item.name} added to cart'})
+    
+    flash(f'{menu_item.name} added to cart!')
+    return redirect(url_for('menu'))
+
+@app.route('/cart/update/<int:cart_id>', methods=['POST'])
+@login_required
+def update_cart_item(cart_id):
+    cart_item = Cart.query.get_or_404(cart_id)
+    
+    # Verify ownership
+    if cart_item.user_id != session['user_id']:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+        if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+            return jsonify({'success': False, 'message': 'Unauthorized'})
+        flash('Unauthorized action.')
+        return redirect(url_for('view_cart'))
+    
+    quantity = int(request.form.get('quantity', 1))
+    
+    if quantity <= 0:
+        db.session.delete(cart_item)
+    else:
+        cart_item.quantity = quantity
+    
+    db.session.commit()
+    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+    if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+        return jsonify({'success': True, 'message': 'Cart updated'})
+    
+    flash('Cart updated successfully!')
+    return redirect(url_for('view_cart'))
+
+@app.route('/cart/remove/<int:cart_id>', methods=['POST'])
+@login_required
+def remove_from_cart(cart_id):
+    cart_item = Cart.query.get_or_404(cart_id)
+    
+    # Verify ownership
+    if cart_item.user_id != session['user_id']:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+        if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+            return jsonify({'success': False, 'message': 'Unauthorized'})
+        flash('Unauthorized action.')
+        return redirect(url_for('view_cart'))
+    
+    item_name = cart_item.item.name
+    db.session.delete(cart_item)
+    db.session.commit()
+    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+    if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+        cart_count = Cart.query.filter_by(user_id=session['user_id']).count()
+        return jsonify({'success': True, 'cart_count': cart_count, 'message': f'{item_name} removed from cart'})
+    
+    flash(f'{item_name} removed from cart!')
+    return redirect(url_for('view_cart'))
+
+@app.route('/cart/clear', methods=['POST'])
+@login_required
+def clear_cart():
+    Cart.query.filter_by(user_id=session['user_id']).delete()
+    db.session.commit()
+    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+    if is_ajax or request.headers.get('Accept', '').find('application/json') != -1:
+        return jsonify({'success': True, 'message': 'Cart cleared'})
+    
+    flash('Cart cleared successfully!')
+    return redirect(url_for('view_cart'))
+
+@app.route('/cart/checkout', methods=['POST'])
+@login_required
+def checkout():
+    cart_items = Cart.query.filter_by(user_id=session['user_id']).all()
+    
+    if not cart_items:
+        flash('Your cart is empty.')
+        return redirect(url_for('view_cart'))
+    
+    # Group cart items by meal shift
+    meal_groups = {}
+    for cart_item in cart_items:
+        meal_shift = cart_item.item.meal_shift
+        if meal_shift not in meal_groups:
+            meal_groups[meal_shift] = []
+        meal_groups[meal_shift].append(cart_item)
+    
+    # Create one order per meal shift
+    orders_created = 0
+    for meal_shift, items in meal_groups.items():
+        total_amount = sum(item.quantity * item.item.price for item in items)
+        
+        # Create the order
+        order = Order(
+            user_id=session['user_id'],
+            meal_shift=meal_shift,
+            total_amount=total_amount
+        )
+        db.session.add(order)
+        db.session.flush()  # To get the order ID
+        
+        # Create order items
+        for cart_item in items:
+            order_item = OrderItem(
+                order_id=order.id,
+                item_id=cart_item.item_id,
+                quantity=cart_item.quantity,
+                unit_price=cart_item.item.price
+            )
+            db.session.add(order_item)
+        
+        orders_created += 1
+    
+    # Clear the cart after creating orders
+    Cart.query.filter_by(user_id=session['user_id']).delete()
+    db.session.commit()
+    
+    flash(f'Successfully placed {orders_created} orders!')
+    return redirect(url_for('view_orders'))
+
 @app.route('/admin/orders')
 @admin_required
 def admin_orders():
-    orders = Order.query.options(db.joinedload('item'), db.joinedload('user')).order_by(Order.timestamp.desc()).all()
+    orders = Order.query.options(db.joinedload('user'), db.joinedload('order_items')).order_by(Order.timestamp.desc()).all()
     return render_template('admin_orders.html', orders=orders)
 
 @app.route('/admin/orders/<int:order_id>/status', methods=['POST'])

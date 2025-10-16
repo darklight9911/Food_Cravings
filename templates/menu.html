@@ -105,11 +105,11 @@
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <button onclick="addToOrder('{{ item.id }}')"
+                        <button onclick="addToCart('{{ item.id }}')"
                             class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center space-x-2 {% if not item.available %}opacity-50 cursor-not-allowed{% endif %}"
                             {% if not item.available %}disabled{% endif %}>
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Add to Order</span>
+                            <i class="fas fa-shopping-basket"></i>
+                            <span>{{ _('Add to Cart') }}</span>
                         </button>
                     </div>
                 </div>
@@ -184,34 +184,70 @@ function increaseQuantity(itemId) {
     quantityElement.textContent = quantity + 1;
 }
 
-// Order management
-function addToOrder(itemId) {
+// Cart management
+function addToCart(itemId) {
     const quantity = parseInt(document.getElementById(`quantity-${itemId}`).textContent);
-    fetch('/orders/add', {
+    
+    const formData = new FormData();
+    formData.append('quantity', quantity);
+    
+    fetch(`/cart/add/${itemId}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
         },
-        body: JSON.stringify({
-            item_id: itemId,
-            quantity: quantity
-        })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success notification
-            const notification = document.createElement('div');
-            notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in';
-            notification.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Added to order successfully!';
-            document.body.appendChild(notification);
+            // Update cart count in navbar
+            updateCartCount(data.cart_count);
             
-            // Remove notification after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            // Show success notification
+            showNotification(data.message, 'success');
+            
+            // Reset quantity to 1
+            document.getElementById(`quantity-${itemId}`).textContent = '1';
+        } else {
+            showNotification(data.message || 'Error adding item to cart', 'error');
         }
+    })
+    .catch(error => {
+        showNotification('Network error', 'error');
     });
+}
+
+function updateCartCount(count) {
+    // Update cart count in navbar
+    const cartCountElements = document.querySelectorAll('[class*="cart-count"]');
+    cartCountElements.forEach(element => {
+        element.textContent = count;
+        element.style.display = count > 0 ? 'flex' : 'none';
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg animate-fade-in z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+            ${message}
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    // Remove notification after 4 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 4000);
 }
 </script>
 {% endblock %}
