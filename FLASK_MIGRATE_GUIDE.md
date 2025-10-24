@@ -1,0 +1,226 @@
+# Flask-Migrate Setup Guide
+
+This project now uses Flask-Migrate for database schema management. This allows you to version control your database changes and apply them safely in production.
+
+## 🗄️ Database Migration Commands
+
+### Using the Database Management Script
+
+```bash
+# Initialize migration repository (only once)
+python manage_db.py init
+
+# Create a new migration after model changes
+python manage_db.py migrate "Description of changes"
+
+# Apply pending migrations to database
+python manage_db.py upgrade
+
+# Rollback the last migration
+python manage_db.py downgrade
+
+# Show current migration version
+python manage_db.py current
+
+# Show migration history
+python manage_db.py history
+```
+
+## 🚀 Quick Start
+
+### 1. Setup Fresh Database with Migrations
+
+```bash
+# Activate virtual environment
+source env/bin/activate  # On Linux/Mac
+# or
+env\Scripts\activate     # On Windows
+
+# Install Flask-Migrate (if not already installed)
+pip install Flask-Migrate==3.1.0
+
+# Initialize migrations (if not done)
+python manage_db.py init
+
+# Create initial migration
+python force_migration.py
+
+# Apply migrations to create database
+python manage_db.py upgrade
+
+# Create admin user
+python -c "
+from app import app, db, User
+from werkzeug.security import generate_password_hash
+with app.app_context():
+    admin = User(username='admin', password=generate_password_hash('admin123'), is_admin=True)
+    db.session.add(admin)
+    db.session.commit()
+    print('Admin user created: admin/admin123')
+"
+```
+
+### 2. Making Model Changes
+
+When you modify models in `app.py`:
+
+```bash
+# 1. Make your changes to models in app.py
+# 2. Create migration for the changes
+python manage_db.py migrate "Add new field to User model"
+
+# 3. Review the generated migration file in migrations/versions/
+# 4. Apply the migration
+python manage_db.py upgrade
+```
+
+## 📁 Migration Files Structure
+
+```
+migrations/
+├── alembic.ini          # Alembic configuration
+├── env.py              # Migration environment setup
+├── README              # Migration info
+├── script.py.mako      # Migration script template
+└── versions/           # Migration versions
+    └── xxxxx_migration_description.py
+```
+
+## ⚠️ Important Notes
+
+### Database Backup
+Always backup your database before running migrations in production:
+
+```bash
+# Backup SQLite database
+cp canteen.db canteen_backup_$(date +%Y%m%d_%H%M%S).db
+
+# For PostgreSQL
+pg_dump dbname > backup.sql
+
+# For MySQL
+mysqldump dbname > backup.sql
+```
+
+### Migration Best Practices
+
+1. **Review Generated Migrations**: Always check the auto-generated migration files before applying them
+2. **Test Migrations**: Test migrations on a copy of production data first
+3. **Backup Before Migrating**: Always backup production database before running migrations
+4. **Incremental Changes**: Make small, incremental schema changes rather than large ones
+5. **Data Migrations**: For data migrations, create custom migration scripts
+
+### Common Migration Scenarios
+
+#### Adding a New Column
+```python
+# In your model
+class User(db.Model):
+    # existing fields...
+    phone = db.Column(db.String(20))  # New field
+```
+
+```bash
+python manage_db.py migrate "Add phone field to User"
+python manage_db.py upgrade
+```
+
+#### Renaming a Column
+```python
+# Create a custom migration for renaming
+python manage_db.py migrate "Rename user email field"
+# Edit the migration file to use op.alter_column()
+python manage_db.py upgrade
+```
+
+#### Adding Constraints
+```python
+# In your model  
+class MenuItem(db.Model):
+    # existing fields...
+    __table_args__ = (
+        db.UniqueConstraint('name', 'shift'),
+    )
+```
+
+## 🔧 Troubleshooting
+
+### Migration Not Detecting Changes
+```bash
+# Force migration creation
+python force_migration.py
+```
+
+### Rollback Failed Migration
+```bash
+# Rollback one migration
+python manage_db.py downgrade
+
+# Rollback to specific version
+python -c "
+from flask_migrate import downgrade
+from app import app
+with app.app_context():
+    downgrade(revision='revision_id')
+"
+```
+
+### Reset Migrations (Development Only)
+```bash
+# ⚠️ WARNING: This will delete all data
+rm -rf migrations/ canteen.db
+python manage_db.py init
+python force_migration.py
+python manage_db.py upgrade
+```
+
+## 🌐 Production Deployment
+
+For production deployment with migrations:
+
+```bash
+# 1. Backup production database
+cp canteen.db canteen_backup.db
+
+# 2. Apply migrations
+python manage_db.py upgrade
+
+# 3. Verify application works correctly
+python app.py
+
+# 4. Monitor for any issues
+```
+
+## 📝 Migration File Example
+
+Here's what a typical migration file looks like:
+
+```python
+"""Add phone field to User
+
+Revision ID: abc123def456
+Revises: def456ghi789
+Create Date: 2024-01-15 10:30:00.000000
+"""
+
+from alembic import op
+import sqlalchemy as sa
+
+# revision identifiers
+revision = 'abc123def456'
+down_revision = 'def456ghi789'
+branch_labels = None
+depends_on = None
+
+def upgrade():
+    # ### commands auto generated by Alembic - please adjust! ###
+    op.add_column('user', sa.Column('phone', sa.String(length=20), nullable=True))
+    # ### end Alembic commands ###
+
+def downgrade():
+    # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_column('user', 'phone')
+    # ### end Alembic commands ###
+```
+
+This setup ensures your database schema changes are version controlled and can be safely applied across different environments! 🎉

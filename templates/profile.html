@@ -3,13 +3,16 @@
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-8">
-    <!-- Profile Header -->
+<div class="space-y-6">
+    <!-- Profile Header with Logo -->
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
-        <div class="bg-gradient-to-r from-primary/20 to-secondary/20 px-6 py-8">
-            <div class="flex items-center space-x-6">
-                <div class="w-20 h-20 bg-primary/30 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-primary text-3xl"></i>
+        <div class="bg-gradient-to-br from-[#D9534F]/20 via-white to-[#8A9A5B]/20 px-6 py-8">
+            <div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <div class="flex items-center space-x-4">
+                   
+                    <div class="w-20 h-20 bg-[#D9534F]/30 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-[#D9534F] text-3xl"></i>
+                    </div>
                 </div>
                 <div class="text-dark">
                     <h1 class="text-3xl font-bold">{{ user.username }}</h1>
@@ -20,9 +23,9 @@
         
         <!-- Profile Stats -->
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-primary">{{ total_orders }}</div>
+                    <div class="text-2xl font-bold text-[#D9534F]">{{ total_orders }}</div>
                     <div class="text-gray-600">Total Orders</div>
                 </div>
                 <div class="text-center">
@@ -34,7 +37,7 @@
                     <div class="text-gray-600">Pending</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-secondary">${{ "%.2f"|format(total_spent) }}</div>
+                    <div class="text-2xl font-bold text-secondary">৳&nbsp;{{ total_spent|int }}</div>
                     <div class="text-gray-600">Total Spent</div>
                 </div>
             </div>
@@ -119,10 +122,10 @@
                                 <i class="fas fa-utensils text-primary"></i>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-dark">{{ order.item.name }}</h3>
+                                <h3 class="font-semibold text-dark">Order #{{ order.id }}</h3>
                                 <p class="text-sm text-gray-600">
-                                    Quantity: {{ order.quantity }} • 
-                                    ${{ "%.2f"|format(order.item.price * order.quantity) }}
+                                    {{ order.order_items|length }} item(s) • 
+                                    ৳&nbsp;{{ order.total_amount|int }}
                                 </p>
                                 <p class="text-xs text-gray-500">
                                     {{ order.timestamp.strftime('%B %d, %Y at %I:%M %p') }}

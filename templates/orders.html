@@ -3,16 +3,24 @@
 {% block title %}My Orders{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-dark flex items-center">
-            <i class="fas fa-shopping-cart text-primary mr-3"></i>
-            My Orders
-        </h2>
-        <a href="/menu" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors flex items-center">
-            <i class="fas fa-plus mr-2"></i>
-            New Order
-        </a>
+<div class="space-y-6">
+    <!-- Header Section with Logo -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <img src="{{ url_for('static', filename='uploads/logo.png') }}" 
+                     alt="Food Cravings Logo" 
+                     class="h-10 w-auto object-contain logo-header">
+                <h2 class="text-2xl font-bold text-dark flex items-center">
+                    <i class="fas fa-shopping-cart text-[#D9534F] mr-3"></i>
+                    My Orders
+                </h2>
+            </div>
+            <a href="/menu" class="bg-[#D9534F] text-white px-4 py-2 rounded-lg hover:bg-[#C9463C] transition-colors flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                New Order
+            </a>
+        </div>
     </div>
     
     {% if orders %}
@@ -32,7 +40,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-bold text-lg text-dark">${{ "%.2f"|format(order.total_amount) }}</div>
+                            <div class="font-bold text-lg text-dark">৳&nbsp;{{ order.total_amount|int }}</div>
                             <span class="px-3 py-1 rounded-full text-sm font-medium
                                        {% if order.status == 'pending' %}
                                            bg-yellow-100 text-yellow-800
@@ -64,7 +72,7 @@
                                 {% endif %}
                                 <div>
                                     <h4 class="font-semibold text-dark">{{ order_item.item.name }}</h4>
-                                    <p class="text-sm text-gray-600">${{ "%.2f"|format(order_item.unit_price) }} each</p>
+                                    <p class="text-sm text-gray-600">৳&nbsp;{{ order_item.unit_price|int }} each</p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -72,7 +80,7 @@
                                     Qty: {{ order_item.quantity }}
                                 </div>
                                 <div class="font-semibold text-dark">
-                                    ${{ "%.2f"|format(order_item.unit_price * order_item.quantity) }}
+                                    ৳&nbsp;{{ (order_item.unit_price * order_item.quantity)|int }}
                                 </div>
                             </div>
                         </div>

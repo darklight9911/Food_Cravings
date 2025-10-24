@@ -4,19 +4,27 @@
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-semibold text-dark">Menu Management</h1>
-        <button onclick="openAddItemModal()"
-            class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center">
-            <i class="fas fa-plus mr-2"></i>
-            Add New Item
-        </button>
+    <!-- Header Section with Logo -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+             
+                <h1 class="text-2xl font-bold text-dark">
+                    <i class="fas fa-clipboard-list text-[#D9534F] mr-3"></i>
+                        Menu Management
+                </h1>
+            </div>
+            <button onclick="openAddItemModal()"
+                class="bg-[#D9534F] text-white px-4 py-2 rounded-full hover:bg-[#C9463C] transition-colors flex items-center">
+                <i class="fas fa-plus mr-2"></i>
+                Add New Item
+            </button>
+        </div>
     </div>
 
     <!-- Menu Categories -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex space-x-4 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-wrap gap-3 mb-6">
             <button class="category-btn active" data-category="all">
                 All Items
             </button>
@@ -62,7 +70,7 @@
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="text-lg font-semibold text-dark">{{ item.name }}</h3>
-                            <p class="text-primary font-semibold">${{ "%.2f"|format(item.price) }}</p>
+                            <p class="text-primary font-semibold">৳&nbsp;{{ item.price|int }}</p>
                         </div>
                         <p class="text-gray-600 text-sm mb-3">{{ item.description }}</p>
                         <div class="flex items-center justify-between">

@@ -5,24 +5,26 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Hero Section -->
-    <div class="relative bg-gradient-to-br from-primary/20 via-white to-secondary/20 rounded-2xl overflow-hidden border border-primary/30 shadow-lg">
+    <div class="relative bg-gradient-to-br from-[#D9534F]/20 via-white to-[#8A9A5B]/20 rounded-2xl overflow-hidden border border-[#D9534F]/30 shadow-lg">
         <!-- Gradient Overlay for extra brightness -->
         <div class="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-white/30"></div>
         
         <div class="relative px-6 py-12 md:py-16 text-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-primary/30 to-secondary/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg border border-white/50">
-                <i class="fas fa-utensils text-primary text-3xl drop-shadow-sm"></i>
+            <div class="flex justify-center mb-6">
+                <img src="{{ url_for('static', filename='uploads/logo.png') }}" 
+                     alt="Food Cravings Logo" 
+                     class="h-16 w-auto object-contain logo-hero">
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold text-dark mb-4 drop-shadow-sm">Welcome to Food Cravings</h1>
-            <p class="text-lg text-gray-700 max-w-2xl mx-auto mb-8 drop-shadow-sm">
+            <h1 class="text-4xl md:text-5xl font-bold text-dark mb-4 drop-shadow-sm tracking-tight">Welcome to Food Cravings</h1>
+            <p class="text-xl text-gray-700 max-w-2xl mx-auto mb-8 drop-shadow-sm leading-relaxed">
                 Your favorite campus dining destination for delicious meals prepared fresh daily
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/menu" class="bg-primary text-white px-8 py-3 rounded-full font-medium hover:bg-opacity-90 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <a href="/menu" class="bg-[#D9534F] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#C9463C] transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-utensils mr-2"></i>
                     View Menu
                 </a>
-                <a href="/notices" class="bg-white/80 backdrop-blur-sm text-primary border-2 border-primary px-8 py-3 rounded-full font-medium hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <a href="/notices" class="bg-[#8A9A5B] text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-[#7A8A4B] transition-all duration-300 flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                     <i class="fas fa-bullhorn mr-2"></i>
                     Latest Updates
                 </a>
@@ -33,10 +35,10 @@
     <!-- Notice Board Section -->
     {% if notices %}
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="bg-primary/10 px-6 py-4 border-b border-primary/20">
+            <div class="bg-[#D9534F]/10 px-6 py-4 border-b border-[#D9534F]/20">
                 <div class="flex items-center">
-                    <i class="fas fa-bullhorn text-primary text-xl mr-3"></i>
-                    <h2 class="text-xl font-semibold text-primary">Latest Updates</h2>
+                    <i class="fas fa-bullhorn text-[#D9534F] text-xl mr-3"></i>
+                    <h2 class="text-2xl font-semibold text-[#D9534F] tracking-wide">Latest Updates</h2>
                 </div>
             </div>
             <div class="divide-y divide-gray-100">
@@ -44,14 +46,14 @@
                     <div class="p-5 hover:bg-gray-50 transition-colors">
                         <div class="flex items-start space-x-4">
                             <div class="flex-shrink-0">
-                                <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-info-circle text-primary text-lg"></i>
+                                <div class="w-10 h-10 bg-[#D9534F]/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-info-circle text-[#D9534F] text-lg"></i>
                                 </div>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-dark mb-2">{{ notice.title }}</h3>
-                                <p class="text-gray-600 mb-3">{{ notice.content }}</p>
-                                <p class="text-sm text-gray-500 flex items-center">
+                                <h3 class="text-xl font-semibold text-dark mb-2 tracking-wide">{{ notice.title }}</h3>
+                                <p class="text-gray-600 mb-3 text-base leading-relaxed">{{ notice.content }}</p>
+                                <p class="text-sm text-gray-500 flex items-center font-medium">
                                     <i class="fas fa-clock mr-2"></i>
                                     {{ notice.timestamp.strftime('%B %d, %Y at %I:%M %p') }}
                                 </p>
@@ -63,66 +65,66 @@
         </div>
     {% endif %}
 
-    <!-- Featured Items Section -->
+    <!-- Featured Items Section - Top Rated Showcase -->
     <div class="space-y-4">
-        <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-semibold text-dark flex items-center">
-                <i class="fas fa-star text-primary mr-3"></i>
-                Featured Items
-            </h2>
-            <a href="/menu" class="text-primary hover:text-primary-dark transition-colors flex items-center font-medium">
-                View All <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+        <div class="text-center">
+            <div>
+                <h2 class="text-3xl font-bold text-dark flex items-center justify-center">
+                    <i class="fas fa-crown text-orange-500 mr-3"></i>
+                    Our Premium Collection
+                </h2>
+                <p class="text-gray-600 text-lg mt-2">Experience our customers' most beloved dishes</p>
+            </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for item in featured_items %}
-                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                     <div class="relative h-48">
                         <img src="/{{ item.image_path or 'static/uploads/default-food.png' }}" 
                              alt="{{ item.name }}"
                              class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
-                            <span class="bg-white px-3 py-1 rounded-full text-primary font-semibold shadow-md">
-                                ${{ "%.2f"|format(item.price) }}
+                            <span class="bg-white px-3 py-1 rounded-full text-[#D9534F] font-semibold shadow-md">
+                                ৳&nbsp;{{ item.price|int }}
                             </span>
+                        </div>
+                        <div class="absolute top-4 left-4">
+                            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full flex items-center shadow-lg">
+                                <i class="fas fa-star mr-1 text-xs"></i>
+                                <span class="font-semibold text-sm">{{ item.average_rating }}</span>
+                                <span class="text-xs ml-1">({{ item.total_ratings }})</span>
+                            </div>
                         </div>
                     </div>
                     <div class="p-6">
-                        <div class="flex justify-between items-start mb-2">
+                        <div class="flex justify-between items-start mb-3">
                             <h3 class="text-xl font-semibold text-dark">{{ item.name }}</h3>
-                            <span class="text-sm text-gray-500 capitalize">
+                            <span class="text-sm text-[#8A9A5B] capitalize font-medium bg-[#8A9A5B]/10 px-2 py-1 rounded-full">
                                 <i class="fas fa-clock mr-1"></i>
                                 {{ item.shift }}
                             </span>
                         </div>
-                        <p class="text-gray-600 mb-4">{{ item.description }}</p>
-                        
-                        {% if session.get('user_id') %}
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-2">
-                                    <button onclick="decreaseQuantity('{{ item.id }}')"
-                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <span id="quantity-{{ item.id }}" class="w-8 text-center">1</span>
-                                    <button onclick="increaseQuantity('{{ item.id }}')"
-                                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                                <button onclick="addToOrder('{{ item.id }}')"
-                                    class="bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors flex items-center">
-                                    <i class="fas fa-shopping-cart mr-2"></i>
-                                    Order Now
-                                </button>
+
+                        <!-- Rating Display -->
+                        <div class="flex items-center mb-3">
+                            <div class="flex items-center">
+                                {% for i in range(5) %}
+                                    <i class="fas fa-star text-lg {% if i < item.average_rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                {% endfor %}
                             </div>
-                        {% else %}
-                            <a href="/login" class="block text-center bg-primary text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition-colors">
-                                <i class="fas fa-sign-in-alt mr-2"></i>
-                                Login to Order
-                            </a>
-                        {% endif %}
+                            <span class="text-sm text-gray-600 ml-2 font-medium">{{ item.average_rating }}/5 ({{ item.total_ratings }} reviews)</span>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ item.description }}</p>
+                        
+                        <!-- Premium Badge -->
+                        <div class="text-center">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-[#D9534F] to-[#8A9A5B] text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                                <i class="fas fa-award mr-2"></i>
+                                Customer Favorite
+                            </span>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -132,16 +134,16 @@
     <!-- Features Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
-            <div class="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-utensils text-primary text-xl"></i>
+            <div class="w-14 h-14 bg-[#D9534F]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-utensils text-[#D9534F] text-xl"></i>
             </div>
             <h3 class="text-lg font-semibold text-dark mb-2">Fresh & Delicious</h3>
             <p class="text-gray-600 text-sm">We prepare all meals fresh daily using quality ingredients</p>
         </div>
         
         <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition-shadow">
-            <div class="w-14 h-14 bg-secondary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-truck text-secondary text-xl"></i>
+            <div class="w-14 h-14 bg-[#8A9A5B]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-truck text-[#8A9A5B] text-xl"></i>
             </div>
             <h3 class="text-lg font-semibold text-dark mb-2">Quick Service</h3>
             <p class="text-gray-600 text-sm">Fast preparation and delivery within the campus</p>
@@ -158,45 +160,19 @@
 </div>
 
 <script>
-function decreaseQuantity(itemId) {
-    const quantityElement = document.getElementById(`quantity-${itemId}`);
-    let quantity = parseInt(quantityElement.textContent);
-    if (quantity > 1) {
-        quantityElement.textContent = quantity - 1;
-    }
-}
-
-function increaseQuantity(itemId) {
-    const quantityElement = document.getElementById(`quantity-${itemId}`);
-    let quantity = parseInt(quantityElement.textContent);
-    quantityElement.textContent = quantity + 1;
-}
-
-function addToOrder(itemId) {
-    const quantity = parseInt(document.getElementById(`quantity-${itemId}`).textContent);
-    fetch('/orders/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            item_id: itemId,
-            quantity: quantity
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const notification = document.createElement('div');
-            notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in';
-            notification.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Added to order successfully!';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
+// Simple animations for enhanced user experience
+document.addEventListener('DOMContentLoaded', function() {
+    // Add fade-in animation to cards
+    const cards = document.querySelectorAll('.bg-white');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
     });
-}
+});
 </script>
 {% endblock %}

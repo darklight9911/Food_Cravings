@@ -3,17 +3,25 @@
 {% block title %}Admin - Notice Board{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-bold text-dark flex items-center">
-            <i class="fas fa-bullhorn text-primary mr-3"></i>
-            Notice Board Management
-        </h2>
-        <button onclick="document.getElementById('addNoticeModal').classList.remove('hidden')"
-                class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors flex items-center font-medium">
-            <i class="fas fa-plus mr-2"></i>
-            Add New Notice
-        </button>
+<div class="space-y-6">
+    <!-- Header Section with Logo -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <img src="{{ url_for('static', filename='uploads/logo.png') }}" 
+                     alt="Food Cravings Logo" 
+                     class="h-10 w-auto object-contain logo-admin">
+                <h2 class="text-3xl font-bold text-dark flex items-center">
+                    <i class="fas fa-bullhorn text-[#D9534F] mr-3"></i>
+                    Notice Board Management
+                </h2>
+            </div>
+            <button onclick="document.getElementById('addNoticeModal').classList.remove('hidden')"
+                    class="bg-[#D9534F] text-white px-6 py-3 rounded-lg hover:bg-[#C9463C] transition-colors flex items-center font-medium">
+                <i class="fas fa-plus mr-2"></i>
+                Add New Notice
+            </button>
+        </div>
     </div>
 
     <!-- Notices Table -->

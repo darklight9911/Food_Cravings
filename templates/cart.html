@@ -3,27 +3,42 @@
 {% block title %}{{ _('Cart') }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-dark">{{ _('My Cart') }}</h1>
-        {% if cart_by_shift %}
-            <button onclick="clearCart()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
-                <i class="fas fa-trash mr-2"></i>{{ _('Clear Cart') }}
-            </button>
-        {% endif %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <img src="{{ url_for('static', filename='uploads/logo.png') }}" 
+                     alt="Food Cravings Logo" 
+                     class="h-10 w-auto object-contain logo-header">
+                <h1 class="text-3xl font-bold text-dark">{{ _('My Cart') }}</h1>
+            </div>
+            {% if cart_by_shift %}
+                <button onclick="clearCart()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                    <i class="fas fa-trash mr-2"></i>{{ _('Clear Cart') }}
+                </button>
+            {% endif %}
+        </div>
     </div>
 
     {% if not cart_by_shift %}
         <!-- Empty Cart State -->
-        <div class="text-center py-12">
-            <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-shopping-basket text-gray-400 text-4xl"></i>
+        <div class="bg-white rounded-xl shadow-md p-12">
+            <div class="text-center">
+                <div class="flex justify-center mb-6">
+                    <img src="{{ url_for('static', filename='uploads/logo.png') }}" 
+                         alt="Food Cravings Logo" 
+                         class="h-12 w-auto object-contain logo-empty-state opacity-75">
+                </div>
+                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shopping-basket text-gray-400 text-4xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-600 mb-4">{{ _('Your cart is empty') }}</h3>
+                <p class="text-gray-500 mb-6">{{ _('Add items from the menu to get started!') }}</p>
+                <a href="{{ url_for('menu') }}" class="bg-[#D9534F] text-white px-6 py-3 rounded-lg hover:bg-[#C9463C] transition-colors inline-flex items-center">
+                    <i class="fas fa-utensils mr-2"></i>{{ _('Browse Menu') }}
+                </a>
             </div>
-            <h3 class="text-xl font-semibold text-gray-600 mb-4">{{ _('Your cart is empty') }}</h3>
-            <p class="text-gray-500 mb-6">{{ _('Add items from the menu to get started!') }}</p>
-            <a href="{{ url_for('menu') }}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors inline-flex items-center">
-                <i class="fas fa-utensils mr-2"></i>{{ _('Browse Menu') }}
-            </a>
         </div>
     {% else %}
         <!-- Cart Items by Meal Shift -->
@@ -53,7 +68,7 @@
                                         <div class="flex-1">
                                             <h3 class="text-lg font-semibold text-dark">{{ cart_item.item.name }}</h3>
                                             <p class="text-gray-600 text-sm mb-2">{{ cart_item.item.description }}</p>
-                                            <p class="text-primary font-semibold">${{ "%.2f"|format(cart_item.item.price) }} {{ _('each') }}</p>
+                                            <p class="text-primary font-semibold">৳&nbsp;{{ cart_item.item.price|int }} {{ _('each') }}</p>
                                         </div>
                                     </div>
                                     
@@ -74,7 +89,7 @@
                                         
                                         <div class="text-right">
                                             <p class="text-lg font-bold text-dark">
-                                                ${{ "%.2f"|format(cart_item.item.price * cart_item.quantity) }}
+                                                ৳&nbsp;{{ (cart_item.item.price * cart_item.quantity)|int }}
                                             </p>
                                         </div>
                                         
@@ -95,7 +110,7 @@
         <div class="bg-white rounded-lg shadow-md p-6 mt-8">
             <div class="flex justify-between items-center text-xl font-bold text-dark mb-6">
                 <span>{{ _('Total Amount') }}</span>
-                <span class="text-primary">${{ "%.2f"|format(total_amount) }}</span>
+                <span class="text-primary">৳&nbsp;{{ total_amount|int }}</span>
             </div>
             
             <div class="flex space-x-4">

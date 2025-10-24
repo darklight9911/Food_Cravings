@@ -16,6 +16,7 @@ A comprehensive web-based canteen management system built with Flask, featuring 
 - [Usage](#-usage)
 - [Project Structure](#-project-structure)
 - [Database Schema](#-database-schema)
+- [Database Management](#-database-management)
 - [API Endpoints](#-api-endpoints)
 - [Internationalization](#-internationalization)
 - [Admin Panel](#-admin-panel)
@@ -61,6 +62,7 @@ A comprehensive web-based canteen management system built with Flask, featuring 
 ### Backend
 - **Flask 2.0.1** - Web framework
 - **SQLAlchemy** - ORM for database operations
+- **Flask-Migrate** - Database migration management
 - **Flask-Login** - User session management
 - **Flask-Babel** - Internationalization support
 - **Werkzeug** - Security utilities
@@ -106,14 +108,29 @@ A comprehensive web-based canteen management system built with Flask, featuring 
    pip install -r requirements.txt
    ```
 
-4. **Initialize database**
+4. **Setup database with Flask-Migrate**
    ```bash
-   python -c "from app import app, db; app.app_context().push(); db.create_all()"
+   # Initialize migrations (if not already done)
+   python manage_db.py init
+   
+   # Create initial migration
+   python force_migration.py
+   
+   # Apply migrations to create database
+   python manage_db.py upgrade
    ```
 
 5. **Create admin user**
    ```bash
-   python create_admin.py
+   python -c "
+   from app import app, db, User
+   from werkzeug.security import generate_password_hash
+   with app.app_context():
+       admin = User(username='admin', password=generate_password_hash('admin123'), is_admin=True)
+       db.session.add(admin)
+       db.session.commit()
+       print('Admin user created: admin/admin123')
+   "
    ```
 
 6. **Compile translations**
@@ -307,7 +324,62 @@ Food_Cravings/
 - timestamp
 ```
 
-## 🔗 API Endpoints
+## �️ Database Management
+
+The project uses **Flask-Migrate** for database schema versioning and management.
+
+### Migration Commands
+
+```bash
+# Initialize migration repository (one-time setup)
+python manage_db.py init
+
+# Create new migration after model changes
+python manage_db.py migrate "Description of changes"
+
+# Apply pending migrations
+python manage_db.py upgrade
+
+# Rollback last migration
+python manage_db.py downgrade
+
+# Show current migration version
+python manage_db.py current
+
+# Show migration history
+python manage_db.py history
+```
+
+### Making Model Changes
+
+1. **Modify models** in `app.py`
+2. **Create migration**: `python manage_db.py migrate "Add new field"`
+3. **Review** the generated migration file in `migrations/versions/`
+4. **Apply migration**: `python manage_db.py upgrade`
+
+### Production Deployment
+
+```bash
+# Always backup before migrating in production
+cp canteen.db canteen_backup.db
+
+# Apply migrations
+python manage_db.py upgrade
+```
+
+### Database Reset (Development Only)
+
+```bash
+# ⚠️ Warning: This deletes all data
+rm -rf migrations/ canteen.db
+python manage_db.py init
+python force_migration.py
+python manage_db.py upgrade
+```
+
+📖 **Detailed Guide**: See [FLASK_MIGRATE_GUIDE.md](FLASK_MIGRATE_GUIDE.md) for comprehensive migration documentation.
+
+## �🔗 API Endpoints
 
 ### Authentication
 - `GET /login` - Login page

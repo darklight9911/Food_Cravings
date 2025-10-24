@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_babel import Babel, gettext, ngettext, lazy_gettext
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -23,6 +24,7 @@ app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_DEFAULT_TIMEZONE'] = 'UTC'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 babel = Babel(app)
 
 # Database Models
@@ -149,33 +151,77 @@ def admin_required(f):
 @app.route('/')
 def index():
     notices = Notice.query.order_by(Notice.timestamp.desc()).limit(5).all()
-    featured_items = MenuItem.query.filter_by(available=True).order_by(db.func.random()).limit(6).all()
+    
+    # Get only premium items with ratings 4.5 and above for showcase
+    featured_items_query = db.session.query(
+        MenuItem,
+        db.func.avg(Feedback.rating).label('avg_rating'),
+        db.func.count(Feedback.id).label('rating_count')
+    ).join(Feedback, MenuItem.id == Feedback.item_id)\
+     .filter(MenuItem.available == True)\
+     .group_by(MenuItem.id)\
+     .having(db.func.avg(Feedback.rating) >= 4.5)\
+     .order_by(db.func.avg(Feedback.rating).desc(), db.func.count(Feedback.id).desc())\
+     .all()
+    
+    # Process the premium items for display
+    featured_items = []
+    for item_data in featured_items_query:
+        item = item_data[0]
+        item.average_rating = round(item_data[1], 1) if item_data[1] else 0
+        item.total_ratings = item_data[2] if item_data[2] else 0
+        featured_items.append(item)
+    
     return render_template('index.html', notices=notices, featured_items=featured_items)
 
 @app.route('/menu')
 def menu():
-    menu_items = MenuItem.query.all()
-    for item in menu_items:
-        feedbacks = Feedback.query.filter_by(item_id=item.id).all()
-        if feedbacks:
-            item.average_rating = sum(f.rating for f in feedbacks) / len(feedbacks)
-            item.total_ratings = len(feedbacks)
-        else:
-            item.average_rating = 0
-            item.total_ratings = 0
+    # Get all items with their ratings, sorted by rating (highest first)
+    rated_items_query = db.session.query(
+        MenuItem,
+        db.func.avg(Feedback.rating).label('avg_rating'),
+        db.func.count(Feedback.id).label('rating_count')
+    ).outerjoin(Feedback, MenuItem.id == Feedback.item_id)\
+     .group_by(MenuItem.id)\
+     .order_by(
+         db.func.avg(Feedback.rating).desc().nullslast(),
+         db.func.count(Feedback.id).desc(),
+         MenuItem.name.asc()
+     ).all()
+    
+    # Process all items for display
+    menu_items = []
+    for item_data in rated_items_query:
+        item = item_data[0]
+        item.average_rating = round(item_data[1], 1) if item_data[1] else 0
+        item.total_ratings = item_data[2] if item_data[2] else 0
+        menu_items.append(item)
+    
     return render_template('menu.html', menu_items=menu_items)
 
 @app.route('/admin/dashboard')
 @admin_required
 def admin_dashboard():
     total_orders = Order.query.count()
-    total_revenue = db.session.query(db.func.sum(MenuItem.price * Order.quantity))\
-        .select_from(Order)\
-        .join(MenuItem, MenuItem.id == Order.item_id)\
+    
+    # Calculate total revenue using the new OrderItem structure
+    total_revenue = db.session.query(db.func.sum(OrderItem.quantity * OrderItem.unit_price))\
         .scalar() or 0
+    
     total_items = MenuItem.query.count()
-    recent_orders = Order.query.options(db.joinedload('item'), db.joinedload('user')).order_by(Order.timestamp.desc()).limit(10).all()
-    popular_items = MenuItem.query.join(Order).group_by(MenuItem.id).order_by(db.func.count(Order.id).desc()).limit(5).all()
+    
+    # Get recent orders with order_items loaded
+    recent_orders = Order.query.options(
+        db.joinedload('user'), 
+        db.joinedload('order_items')
+    ).order_by(Order.timestamp.desc()).limit(10).all()
+    
+    # Get popular items based on OrderItem quantities
+    popular_items = db.session.query(
+        MenuItem, 
+        db.func.sum(OrderItem.quantity).label('total_quantity')
+    ).join(OrderItem).group_by(MenuItem.id)\
+     .order_by(db.func.sum(OrderItem.quantity).desc()).limit(5).all()
     
     return render_template('admin/dashboard.html', 
                          total_orders=total_orders,
@@ -278,10 +324,31 @@ def admin_toggle_item(item_id):
 @admin_required
 def admin_update_order_status(order_id):
     order = Order.query.get_or_404(order_id)
-    data = request.get_json()
-    order.status = data.get('status')
-    db.session.commit()
-    return jsonify({'success': True})
+    
+    # Handle both JSON and form data
+    if request.is_json:
+        data = request.get_json()
+        status = data.get('status')
+    else:
+        status = request.form.get('status')
+    
+    if status in ['pending', 'completed', 'cancelled']:
+        order.status = status
+        db.session.commit()
+        
+        # Return appropriate response based on request type
+        if request.is_json:
+            return jsonify({'success': True})
+        else:
+            flash('Order status updated successfully.')
+            return redirect(url_for('admin_orders'))
+    
+    # Handle invalid status
+    if request.is_json:
+        return jsonify({'success': False, 'error': 'Invalid status'}), 400
+    else:
+        flash('Invalid order status.')
+        return redirect(url_for('admin_orders'))
 
 @app.route('/orders/add', methods=['POST'])
 @login_required
@@ -658,16 +725,7 @@ def admin_orders():
     orders = Order.query.options(db.joinedload('user'), db.joinedload('order_items')).order_by(Order.timestamp.desc()).all()
     return render_template('admin_orders.html', orders=orders)
 
-@app.route('/admin/orders/<int:order_id>/status', methods=['POST'])
-@admin_required
-def update_order_status(order_id):
-    order = Order.query.get_or_404(order_id)
-    status = request.form.get('status')
-    if status in ['pending', 'completed', 'cancelled']:
-        order.status = status
-        db.session.commit()
-        flash('Order status updated successfully.')
-    return redirect(url_for('admin_orders'))
+# Route removed - duplicate of admin_update_order_status above
 
 # Profile Routes
 @app.route('/profile')
@@ -685,7 +743,7 @@ def profile():
     
     # Get recent orders
     recent_orders = Order.query.filter_by(user_id=user.id)\
-        .options(db.joinedload('item'))\
+        .options(db.joinedload('order_items'))\
         .order_by(Order.timestamp.desc())\
         .limit(10).all()
     
@@ -696,9 +754,9 @@ def profile():
         .limit(5).all()
     
     # Calculate total spent
-    total_spent = db.session.query(db.func.sum(MenuItem.price * Order.quantity))\
-        .select_from(Order)\
-        .join(MenuItem, MenuItem.id == Order.item_id)\
+    total_spent = db.session.query(db.func.sum(OrderItem.quantity * OrderItem.unit_price))\
+        .select_from(OrderItem)\
+        .join(Order, Order.id == OrderItem.order_id)\
         .filter(Order.user_id == user.id, Order.status == 'completed')\
         .scalar() or 0
     
@@ -719,31 +777,16 @@ def admin_profile():
         flash('User not found.')
         return redirect(url_for('login'))
     
-    # Get admin statistics
+    # Get basic admin statistics for the header display
     total_orders = Order.query.count()
-    total_revenue = db.session.query(db.func.sum(MenuItem.price * Order.quantity))\
-        .select_from(Order)\
-        .join(MenuItem, MenuItem.id == Order.item_id)\
+    total_revenue = db.session.query(db.func.sum(OrderItem.quantity * OrderItem.unit_price))\
+        .select_from(OrderItem)\
+        .join(Order, Order.id == OrderItem.order_id)\
         .filter(Order.status == 'completed')\
         .scalar() or 0
     total_items = MenuItem.query.count()
     total_users = User.query.count()
     total_feedback = Feedback.query.count()
-    
-    # Get recent activity
-    recent_orders = Order.query.options(db.joinedload('item'), db.joinedload('user'))\
-        .order_by(Order.timestamp.desc())\
-        .limit(10).all()
-    
-    recent_feedback = Feedback.query.options(db.joinedload('menu_item'), db.joinedload('user'))\
-        .order_by(Feedback.timestamp.desc())\
-        .limit(5).all()
-    
-    # Get popular items
-    popular_items = MenuItem.query.join(Order)\
-        .group_by(MenuItem.id)\
-        .order_by(db.func.count(Order.id).desc())\
-        .limit(5).all()
     
     return render_template('admin/profile.html',
                          user=user,
@@ -752,9 +795,7 @@ def admin_profile():
                          total_items=total_items,
                          total_users=total_users,
                          total_feedback=total_feedback,
-                         recent_orders=recent_orders,
-                         recent_feedback=recent_feedback,
-                         popular_items=popular_items)
+                         current_time=datetime.now())
 
 @app.route('/profile/update', methods=['POST'])
 @login_required

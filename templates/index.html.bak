@@ -68,7 +68,7 @@
                          class="w-full h-full object-cover">
                     <div class="absolute top-4 right-4">
                         <span class="bg-white px-3 py-1 rounded-full text-primary font-semibold shadow-md">
-                            ${{ "%.2f"|format(item.price) }}
+                            ৳&nbsp;{{ item.price|int }}
                         </span>
                     </div>
                 </div>
